@@ -28,19 +28,22 @@ public class Checkboxes {
         driver.get("https://the-internet.herokuapp.com/checkboxes");
 //        wait.until(ExpectedConditions.titleContains("TheInternet"));
         wait.until(ExpectedConditions.textToBePresentInElementLocated(By.tagName("h3"), "Checkboxes"));
+
         //check checkbox1
+//        driver.findElement(By.xpath("//form[@id='checkboxes']/input[1]")).getDomAttribute("checked");
         if (!driver.findElement(By.xpath("//form[@id='checkboxes']/input[1]")).isSelected()){
             driver.findElement(By.xpath("//form[@id='checkboxes']/input[1]")).click();
-//            driver.findElement(By.cssSelector("form#checkbox input:nth-child(1)")).click();
+//            driver.findElement(By.cssSelector("form#checkboxes input:nth-child(1)")).click();
         }
 
         Assert.assertTrue(driver.findElement(By.xpath("//form[@id='checkboxes']/input[1]")).isSelected());
 
         //check checkbox2
-        if(!driver.findElement(By.xpath("//form[@id='checkboxes']//input[2]")).isSelected()){
+        if(driver.findElement(By.xpath("//form[@id='checkboxes']//input[2]")).isSelected()){
             driver.findElement(By.xpath("//form[@id='checkboxes']/input[2]")).click();
         }
-        Assert.assertTrue(driver.findElement(By.xpath("//form[@id='checkboxes']/input[2]")).isSelected());
-    }
+        Assert.assertFalse(driver.findElement(By.xpath("//form[@id='checkboxes']/input[2]")).isSelected());
 
+        driver.quit();
+    }
 }
