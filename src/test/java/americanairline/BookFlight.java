@@ -52,25 +52,35 @@ public class BookFlight {
 
         //select airport NYC
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(false);",
-//                driver.findElement(By.xpath("//span[.='NYC']")));
-                driver.findElement(By.id("airport_NYC")));
+               driver.findElement(By.xpath("//span[.='NYC']")));
+//                driver.findElement(By.id("airport_NYC")));
 
         //wait
 //        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[.='NYC']")));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("airport_NYC")));
-//        Thread.sleep(8000);
+//        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("airport_NYC")));
+        Thread.sleep(8000);
 
         // Double click to NYC airport code
         Actions actions = new Actions(driver);
-        actions.doubleClick(driver.findElement(By.id("airport_LGA"))).perform();
+        actions.doubleClick(driver.findElement(By.id("airport_NYC"))).perform();
+//        actions.doubleClick(driver.findElement(By.xpath("//span[.='ISP']"))).perform();
 
+//        driver.findElement(By.id("airport_NYC")).click();
+
+//        driver.findElements(By.xpath("//table[@id='airportsSection']/tbody/tr/a"))
+//                .stream().filter(fl -> fl.getText().equals("NYC"))
+//                .forEach(el->actions.doubleClick(el).perform());
+
+//        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("airport_NYC")));
+        Thread.sleep(5000);
         driver.findElement(By.xpath("//button[@class='ui-datepicker-trigger']")).click();
+
         driver.findElements(By.cssSelector("td[data-handler='selectDay'] a"))
                 .stream()
                 .filter(el -> el.getText()
-                        .equals("25"))
+                        .equals("30"))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Date 25 not found"))
+                .orElseThrow(() -> new RuntimeException("Date 30 not found"))
                 .click();
 
         driver.findElement(By.id("flightSearchForm.button.reSubmit")).click();
