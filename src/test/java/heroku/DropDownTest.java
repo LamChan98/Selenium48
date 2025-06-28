@@ -32,8 +32,7 @@ public class DropDownTest {
 
         select.selectByValue("1");
         Assert.assertTrue(driver.findElement(By.cssSelector("option[value='1']")).isSelected());
-
-//        driver.quit();
+        driver.quit();
     }
 
     @Test

@@ -40,6 +40,7 @@ public class NestedFrameTest {
         System.out.println(driver.findElement(By.xpath("//html/body")).getText());
         Assert.assertTrue(driver.findElement(By.xpath("//html/body")).getText().contains("BOTTOM"));
 
+        driver.quit();
     }
 
 }
