@@ -1,5 +1,6 @@
 package heroku;
 
+import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -8,13 +9,17 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class WebTableTest {
@@ -23,12 +28,26 @@ public class WebTableTest {
     Navigate to https://the-internet.herokuapp.com/tables
     Focus on table 1
     The person who has largest due is "Doe Jacson"*/
+    WebDriver driver;
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    List<Person> personList = new ArrayList<>();
+    @BeforeClass
+    void setup() {
+        driver = new ChromeDriver();
+        driver.get("https://the-internet.herokuapp.com/tables");
+
+        driver.findElements(By.xpath("//table[@id='table1']/tbody/tr"))
+                .forEach(row -> {
+                    String lastName = row.findElement(By.xpath("./td[1]")).getText();
+                    String firstName = row.findElement(By.xpath("./td[2]")).getText();
+                    double due = Double.parseDouble(row.findElement(By.xpath("./td[4]")).getText().replace("$", ""));
+                    personList.add(new Person(firstName, lastName, due));
+                });
+    }
+
 
     @Test
     void tc05() {
-        WebDriver driver = new ChromeDriver();
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        driver.get("https://the-internet.herokuapp.com/tables");
 /*        1. get row index of max due -> get last name/ first name of max due
         due comlumn xpath //table[@id='table1']/tbody/tr/td[4]
         lastname column xpath //table[@id='table1']/tbody/tr[row_index]/td[1]
@@ -51,17 +70,6 @@ public class WebTableTest {
 
     @Test
     void tc06() {
-        WebDriver driver = new ChromeDriver();
-        driver.get("https://the-internet.herokuapp.com/tables");
-
-        List<Person> personList = new ArrayList<>();
-        driver.findElements(By.xpath("//table[@id='table1']/tbody/tr"))
-                .forEach(row -> {
-                    String lastName = row.findElement(By.xpath("./td[1]")).getText();
-                    String firstName = row.findElement(By.xpath("./td[2]")).getText();
-                    double due = Double.parseDouble(row.findElement(By.xpath("./td[4]")).getText().replace("$", ""));
-                    personList.add(new Person(lastName, firstName, due));
-                });
 //        personList.forEach(person -> person.info());
 //        personList.forEach(Person::info);
 
@@ -76,18 +84,6 @@ public class WebTableTest {
 
     @Test
     void tc07() {
-        WebDriver driver = new ChromeDriver();
-        driver.get("https://the-internet.herokuapp.com/tables");
-
-        List<Person> personList = new ArrayList<>();
-        driver.findElements(By.xpath("//table[@id='table1']/tbody/tr"))
-                .forEach(row -> {
-                    String lastName = row.findElement(By.xpath("./td[1]")).getText();
-                    String firstName = row.findElement(By.xpath("./td[2]")).getText();
-                    double due = Double.parseDouble(row.findElement(By.xpath("./td[4]")).getText().replace("$", ""));
-                    personList.add(new Person(firstName, lastName, due));
-                });
-
         double minDue = personList.stream().min(Comparator.comparing(Person::getDue)).get().getDue();
         List<String> listPersonHaveMinDue = personList.stream()
                 .filter(p -> p.getDue() == minDue).map(Person::getFullname).toList();
@@ -107,10 +103,6 @@ public class WebTableTest {
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--disable-extensions");
-        WebDriver driver = new ChromeDriver(options);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-
-        driver.get("https://www.vietnamairlines.com/vn/vi/home");
         //accept cookie
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[.='Đồng ý']"))).click();
         //select one way
@@ -131,6 +123,31 @@ public class WebTableTest {
         String departDate = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("roundtrip-date-depart")))
                 .getDomProperty("value");
         Assert.assertEquals(departDate, "25/05/2025");
+    }
+
+    @AfterMethod
+    void captureScreenshot(ITestResult testResult) {
+        if (!testResult.isSuccess()){
+            TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
+            File srcFile = takesScreenshot.getScreenshotAs(OutputType.FILE);
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+            File desFile = new File(String.format("target/screenshot-%s-%s.png", testResult.getName(), timestamp));
+            try {
+                FileUtils.copyFile(srcFile, desFile);
+
+            } catch (IOException err) {
+                throw new RuntimeException(err);
+            }
+        }
+
+    }
+
+    @AfterClass(alwaysRun = true)
+    void tearDown() {
+        // Close the WebDriver
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
 }
